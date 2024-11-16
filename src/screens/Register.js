@@ -16,11 +16,7 @@ class Register extends Component {
 
     validarForm = () => {
         const { email, username, password } = this.state;
-        if (email && username && password) {
-            this.setState({ esvalido: true, errorMessage: '' });
-        } else {
-            this.setState({ esvalido: false });
-        }
+        this.setState({ esvalido: email && username && password });
     };
 
     handleRegister = () => {
@@ -35,60 +31,62 @@ class Register extends Component {
                     email: email
                 })
                 .then(() => {
+                    this.setState({ errorMessage: '' });
                     this.props.navigation.navigate('Login');
                 })
-                .catch(error => {
-                    this.setState({ errorMessage: error.message });
-                    Alert.alert('Error al guardar en Firestore', error.message);
+                .catch(() => {
+                    this.setState({ errorMessage: 'Error al guardar en Firestore.' });
                 });
             })
             .catch(error => {
                 this.setState({ errorMessage: error.message });
-                Alert.alert('Error de autenticación', error.message);
             });
     };
 
-    handleChange = (field, value) => {
-        this.setState({ [field]: value }, this.validateForm);
-    };
-
     render() {
-        const { email, username, password, esvalido, errorMessage } = this.state;
-
         return (
             <View style={styles.container}>
-                {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+                {this.state.errorMessage ? <Text style={styles.errorText}>{this.state.errorMessage}</Text> : null}
 
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
-                    value={email}
-                    onChangeText={(text) => this.handleChange('email', text)}
+                    keyboardType="email-address"
+                    value={this.state.email}
+                    onChangeText={(text) => {
+                        this.setState({ email: text }, this.validarForm);
+                    }}
                 />
+
                 <TextInput
                     style={styles.input}
                     placeholder="Nombre de usuario"
-                    value={username}
-                    onChangeText={(text) => this.handleChange('username', text)}
+                    value={this.state.username}
+                    onChangeText={(text) => {
+                        this.setState({ username: text }, this.validarForm);
+                    }}
                 />
+
                 <TextInput
                     style={styles.input}
                     placeholder="Contraseña"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={(text) => this.handleChange('password', text)}
+                    secureTextEntry={true}
+                    value={this.state.password}
+                    onChangeText={(text) => {
+                        this.setState({ password: text }, this.validarForm);
+                    }}
                 />
-                
-                <TouchableOpacity 
-                    style={[styles.button, { backgroundColor: esvalido ? '#007bff' : '#ccc' }]} 
-                    onPress={this.handleRegister} 
-                    disabled={!esvalido}
+
+                <TouchableOpacity
+                    style={[styles.button, { backgroundColor: this.state.esvalido ? '#007bff' : '#ccc' }]}
+                    onPress={this.handleRegister}
+                    disabled={!this.state.esvalido}
                 >
                     <Text style={styles.buttonText}>Registrarme</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')}>
-                    <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
+                    <Text style={styles.link}>¿Ya tenés cuenta? Inicia sesión</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -100,35 +98,43 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 20
+        padding: 25,
+        backgroundColor: '#f5f5f5',
     },
     input: {
         width: '100%',
         height: 50,
         borderColor: '#ddd',
         borderWidth: 1,
-        marginBottom: 15,
-        paddingLeft: 10,
-        borderRadius: 5
+        marginBottom: 20,
+        paddingLeft: 15,
+        borderRadius: 8,
+        fontSize: 16,
+        backgroundColor: '#fff',
     },
     button: {
         width: '100%',
         height: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 5
+        borderRadius: 8,
+        marginTop: 10,
     },
     buttonText: {
         color: '#fff',
-        fontSize: 16
+        fontSize: 18,
+        fontWeight: '600',
     },
     link: {
-        marginTop: 15,
-        color: '#007bff'
+        marginTop: 20,
+        color: '#007bff',
+        fontSize: 16,
+        fontWeight: '500',
     },
     errorText: {
-        color: 'red',
-        marginBottom: 10
+        color: '#e74c3c',
+        marginBottom: 15,
+        fontSize: 14,
     }
 });
 
