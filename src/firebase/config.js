@@ -1,4 +1,4 @@
-import App from "../../App";
+import app from 'firebase/app';
 import firebase from "firebase";
 
 const firebaseConfig = {
